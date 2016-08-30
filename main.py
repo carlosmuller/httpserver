@@ -2,9 +2,11 @@ import thread
 import socket
 import argparse
 import logging
+from httprequest import *
+
 logging.basicConfig(
-        format='%(asctime)s - %(message)s',
-        level=logging.INFO)
+    format='%(asctime)s - %(message)s',
+    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 help = """
@@ -28,33 +30,6 @@ def get_args():
     return args.port
 
 
-def conected(socket,client):
-    # need to shpw to do this while until msg  ends for really long url
-    msg = ""
-    while True:
-        tmp = socket.recv(PACKET_LENGTH)
-        msg += tmp
-        if (len(tmp) < PACKET_LENGTH):
-            break
-    response_headers = {
-        'Content-Type': 'text/html; encoding=utf8',
-        'Content-Length': len(msg),
-        'Connection': 'close',
-    }
-    response_headers_raw = ''.join('%s: %s\n' % (k, v) for k, v in response_headers.iteritems())
-    response_proto = 'HTTP/1.1'
-    response_status = '200'
-    response_status_text = 'OK'
-    socket.send('%s %s %s' % (response_proto, response_status, response_status_text))
-    socket.send(response_headers_raw)
-    result = '\n<html><body>' + msg.replace('\r\n', '<br>') + '</body></html>'
-    logger.info('Cliente [%s] pediu %s'%(client,msg.split('\r\n')[0]))
-    #print msg.split('\r\n')[0].split(' ')[1]
-    socket.send(result)
-    socket.close()
-    thread.exit()
-
-
 if __name__ == '__main__':
     port = get_args()
     if port:
@@ -70,7 +45,9 @@ if __name__ == '__main__':
     try:
         while True:
             con, client = tcp.accept()
-            thread.start_new_thread(conected, (con,client))
+            logger.debug("Concetado com cliente %s" % client[0])
+            request = httprequest(con, client)
+            thread.start_new_thread(request.processarRequest, ())
     except Exception as e:
         print e
         tcp.close()
