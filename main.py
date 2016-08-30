@@ -1,6 +1,11 @@
 import thread
 import socket
 import argparse
+import logging
+logging.basicConfig(
+        format='%(asctime)s - %(message)s',
+        level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 help = """
 HttpServer
@@ -14,6 +19,7 @@ HttpServer
 
 PACKET_LENGTH = 32
 
+
 def get_args():
     parser = argparse.ArgumentParser(description="A Simple HTTP server ")
     parser.add_argument('-p', '--port', type=int, help='Port number, must be greater than 1024',
@@ -23,7 +29,6 @@ def get_args():
 
 
 def conected(socket,client):
-    print 'Conectado por', client
     # need to shpw to do this while until msg  ends for really long url
     msg = ""
     while True:
@@ -43,7 +48,7 @@ def conected(socket,client):
     socket.send('%s %s %s' % (response_proto, response_status, response_status_text))
     socket.send(response_headers_raw)
     result = '\n<html><body>' + msg.replace('\r\n', '<br>') + '</body></html>'
-    print msg
+    logger.info('Cliente [%s] pediu %s'%(client,msg.split('\r\n')[0]))
     #print msg.split('\r\n')[0].split(' ')[1]
     socket.send(result)
     socket.close()
