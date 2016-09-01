@@ -35,7 +35,7 @@ if __name__ == '__main__':
     if port:
         PORT = port
 
-    print 'Starting server at', PORT
+    logger.info('Starting server at %s' % PORT)
 
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
     orig = ('0.0.0.0', PORT)
