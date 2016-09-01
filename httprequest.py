@@ -28,8 +28,9 @@ class httprequest(object):
                 break
         headerRequest = msg.split('\r\n')[0]
         logger.info('Cliente [%s] pediu %s com a mensagem completa:\n%s' % (self.cliente, headerRequest, msg))
-        if headerRequest.split(' ')[0] not in httpmethod.allmethods():
-            self.sendResponse("Bad request sorry", httpstatus.status[400])
+        method = headerRequest.split(' ')[0].upper()
+        if method not in httpmethod.allmethods():
+            self.sendResponse("This method [%s] is not implemented yet" % method, httpstatus.status[501])
         else:
             self.sendResponse(msg,httpstatus.status[200])
         thread.exit()
