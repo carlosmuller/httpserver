@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 import logging
 import thread
+
+from httpmethods import httpmethod
 from httpstatus import *
 
 logging.basicConfig(
@@ -24,11 +26,15 @@ class httprequest(object):
             msg += tmp
             if len(tmp) < PACKET_LENGTH:
                 break
-        self.sendResponse(msg)
-        logger.info('Cliente [%s] pediu %s com a mensagem completa:\n%s' % (self.cliente, msg.split('\r\n')[0], msg))
+        headerRequest = msg.split('\r\n')[0]
+        logger.info('Cliente [%s] pediu %s com a mensagem completa:\n%s' % (self.cliente, headerRequest, msg))
+        if headerRequest.split(' ')[0] not in httpmethod.allmethods():
+            self.sendResponse("Bad request sorry", httpstatus.status[400])
+        else:
+            self.sendResponse(msg,httpstatus.status[200])
         thread.exit()
 
-    def sendResponse(self, msg):
+    def sendResponse(self, msg, status):
         response_headers = {
             'Content-Type': 'text/html; encoding=utf8',
             'Content-Length': len(msg),
@@ -36,8 +42,9 @@ class httprequest(object):
         }
         response_headers_raw = ''.join('%s: %s\n' % (k, v) for k, v in response_headers.iteritems())
         response_proto = 'HTTP/1.0'
-        self.conexao.send('%s %s' % (response_proto, httpstatus.status[200]))
+        self.conexao.send('%s %s' % (response_proto, status))
         self.conexao.send(response_headers_raw)
         result = '\n<html><body>' + msg.replace('\r\n', '<br>') + '</body></html>'
         self.conexao.send(result)
         self.conexao.close()
+        # logger.info('Respondi o cliente [%s] com o status [%s] e a mensagem:\n%s' % (self.cliente, status, msg))

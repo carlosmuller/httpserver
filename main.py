@@ -49,5 +49,5 @@ if __name__ == '__main__':
             request = httprequest(con, client)
             thread.start_new_thread(request.processarRequest, ())
     except Exception as e:
-        print e
         tcp.close()
+        print e
