@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import logging
 import thread
+from httpstatus import *
 
 logging.basicConfig(
     format='%(asctime)s - %(message)s',
@@ -34,10 +35,8 @@ class httprequest(object):
             'Connection': 'close',
         }
         response_headers_raw = ''.join('%s: %s\n' % (k, v) for k, v in response_headers.iteritems())
-        response_proto = 'HTTP/1.1'
-        response_status = '200'
-        response_status_text = 'OK'
-        self.conexao.send('%s %s %s' % (response_proto, response_status, response_status_text))
+        response_proto = 'HTTP/1.0'
+        self.conexao.send('%s %s' % (response_proto, httpstatus.status[200]))
         self.conexao.send(response_headers_raw)
         result = '\n<html><body>' + msg.replace('\r\n', '<br>') + '</body></html>'
         self.conexao.send(result)
