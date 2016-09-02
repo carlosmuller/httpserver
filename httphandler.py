@@ -11,7 +11,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class httprequest(object):
+class httphandler(object):
     """Classe de processamento do http e da requisição"""
 
     def __init__(self, conexao, cliente, PACKET_LENGTH):

@@ -3,7 +3,7 @@ import thread
 import socket
 import argparse
 import logging
-from httprequest import *
+from httphandler import *
 
 logging.basicConfig(
     format='%(asctime)s - %(message)s',
@@ -49,7 +49,7 @@ if __name__ == '__main__':
             con, client = tcp.accept()
             logger.debug("Concetado com cliente %s" % client[0])
             #Criando obj para parsear o request
-            request = httprequest(con, client, PACKET_LENGTH)
+            request = httphandler(con, client, PACKET_LENGTH)
             #Start em uma nova thread e procesa a request
             thread.start_new_thread(request.processarRequest, ())
     except Exception as e:
