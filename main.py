@@ -38,9 +38,10 @@ if __name__ == '__main__':
     logger.info('Starting server at %s' % PORT)
 
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
+    #Aceita qualquer requeste de qualquer endereço, que venha na porta
     orig = ('0.0.0.0', PORT)
     tcp.bind(orig)
-
+    #Começa a ouvir
     tcp.listen(1)
     try:
         while True:
