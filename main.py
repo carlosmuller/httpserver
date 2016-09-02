@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import thread
 import socket
 import argparse
@@ -12,28 +13,27 @@ logger = logging.getLogger(__name__)
 help = """
 HttpServer
     Usage:
-        main.py , will run on 8080
-        main.py (-p | --port) <PORT> , must be grereate than 1024
-
+        main.py , will run on 8181 and packet size will be 32
+        main.py (-p | --port) <PORT> , must be greater than 1024
+        main.py (-l | --length) <LENGTH>, packet size must be greater than 0
     Option:
         -p, --port
+        -l , --length
 """
-
-PACKET_LENGTH = 32
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description="A Simple HTTP server ")
+    parser = argparse.ArgumentParser(description="A Simple HTTP server, if none where specified  will run on 8181 and packet size will be 32")
     parser.add_argument('-p', '--port', type=int, help='Port number, must be greater than 1024',
                         required=False, nargs='?', default=8181)
+    parser.add_argument('-l', '--length', type=int, help='Packet size, must be greater than 0',
+                        required=False, nargs='?', default=32)
     args = parser.parse_args()
-    return args.port
+    return args.port, args.length
 
 
 if __name__ == '__main__':
-    port = get_args()
-    if port:
-        PORT = port
+    PORT, PACKET_LENGTH = get_args()
 
     logger.info('Starting server at %s' % PORT)
 
@@ -44,10 +44,14 @@ if __name__ == '__main__':
     tcp.listen(1)
     try:
         while True:
+            #Conexão aceita
             con, client = tcp.accept()
             logger.debug("Concetado com cliente %s" % client[0])
-            request = httprequest(con, client)
+            #Criando obj para parsear o request
+            request = httprequest(con, client, PACKET_LENGTH)
+            #Start em uma nova thread e procesa a request
             thread.start_new_thread(request.processarRequest, ())
     except Exception as e:
+        tcp.listen(0)
         tcp.close()
         print e

@@ -9,40 +9,56 @@ logging.basicConfig(
     format='%(asctime)s - %(message)s',
     level=logging.INFO)
 logger = logging.getLogger(__name__)
-PACKET_LENGTH = 32
 
 
 class httprequest(object):
     """Classe de processamento do http e da requisição"""
 
-    def __init__(self, conexao, cliente):
-        self.conexao = conexao
-        self.cliente = cliente
+    def __init__(self, conexao, cliente, PACKET_LENGTH):
+        self.conexao = conexao  # socket
+        self.cliente = cliente  # Cliente ip porta
+        self.PACKET_LENGTH = PACKET_LENGTH  # tamanho para leitura de entrada
+
+    """
+        Método que recebe toda a mensagem to cliente e a valida,
+        para cada tipo de erro manda uma saída.
+    """
 
     def processarRequest(self):
         msg = ""
+        # Recebe a mensgem até ela acabar
         while True:
-            tmp = self.conexao.recv(PACKET_LENGTH)
+            tmp = self.conexao.recv(self.PACKET_LENGTH)
             msg += tmp
-            if len(tmp) < PACKET_LENGTH:
+            if len(tmp) < self.PACKET_LENGTH:
                 break
+        # Pega o header da requisão
         header = msg.split('\r\n')[0]
-        headerAtributes = header.split(' ')
+        # Separa o header en método, path e protocolo
+        header_attributes = header.split(' ')
         logger.info('Cliente(ip, porta resposta ) [%s] pediu com o header [%s] com a mensagem completa:\n%s' % (self.cliente, header, msg))
-        if len(headerAtributes) != 3:
+        # Válida que o header representa um header http 1.0
+        if len(header_attributes) != 3:
             self.sendResponse("This is [%s] a invalid header for HTTP/1.0" % header, httpstatus.status[400])
         else:
-            method = headerAtributes[0].upper()
-            path = headerAtributes[1]
-            protocol = headerAtributes[2]
-            if not protocol.startswith("HTTP/1."):
+            method = header_attributes[0].upper()
+            path = header_attributes[1]
+            protocol = header_attributes[2]
+            # Validação para o protocolo 1.0 ou 1.1
+            if not protocol.startswith("HTTP/1"):
                 self.sendResponse("Bad request don't accept protocol [%s]" % protocol, httpstatus.status[400])
             else:
+                # Apenas aceitamos HEAD, POST e GET
                 if method not in httpmethod.allmethods():
                     self.sendResponse("This method [%s] is not implemented yet" % method, httpstatus.status[501])
                 else:
                     self.sendResponse(msg, httpstatus.status[200])
+        # Depois de enviar a resposta ele fecha a thread em que ele está executando
         thread.exit()
+
+    """
+        Método que responde o cliente com uma msg em html, e um status
+    """
 
     def sendResponse(self, msg, status):
         # logger.info("Respondi o cliente com o status [%s] e msg [%s] " % (status, msg))
