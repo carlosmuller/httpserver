@@ -37,20 +37,20 @@ class httphandler(object):
         # Separa o header en método, path e protocolo
         header_attributes = header.split(' ')
         logger.info('Cliente(ip, porta resposta ) [%s] pediu com o header [%s] com a mensagem completa:\n%s' % (self.cliente, header, msg))
-        # Válida que o header representa um header http 1.0
+        # Válida que o header representa um header http 1.X
         if len(header_attributes) != 3:
-            self.sendResponse("This is [%s] a invalid header for HTTP/1.0" % header, httpstatus.status[400])
+            self.sendResponse("Esse cabeçalho é invalido[%s] para requisições HTTP/1.0" % header, httpstatus.status[400])
         else:
             method = header_attributes[0].upper()
             path = header_attributes[1]
             protocol = header_attributes[2]
             # Validação para o protocolo 1.0 ou 1.1
             if not protocol.startswith("HTTP/1"):
-                self.sendResponse("Bad request don't accept protocol [%s]" % protocol, httpstatus.status[400])
+                self.sendResponse("Request inválido protocolo não aceito [%s]" % protocol, httpstatus.status[400])
             else:
                 # Apenas aceitamos HEAD, POST e GET
                 if method not in httpmethod.allmethods():
-                    self.sendResponse("This method [%s] is not implemented yet" % method, httpstatus.status[501])
+                    self.sendResponse("Esse método[%s] ainda ainda não foi implementado" % method, httpstatus.status[501])
                 else:
                     self.sendResponse(msg, httpstatus.status[200])
         # Depois de enviar a resposta ele fecha a thread em que ele está executando
@@ -61,7 +61,7 @@ class httphandler(object):
     """
 
     def sendResponse(self, msg, status):
-        # logger.info("Respondi o cliente com o status [%s] e msg [%s] " % (status, msg))
+        logger.info("Respondemos para o Cliente [%s] com o status [%s] com a mensagem:\n%s" % (self.cliente, status, msg))
         response_headers = {
             'Content-Type': 'text/html; encoding=utf8',
             'Content-Length': len(msg),
@@ -69,7 +69,7 @@ class httphandler(object):
         }
         response_headers_raw = ''.join('%s: %s\r\n' % (k, v) for k, v in response_headers.iteritems())
         response_proto = 'HTTP/1.0'
-        self.conexao.send('%s %s' % (response_proto, status))
+        self.conexao.send('%s %s\r\n' % (response_proto, status))
         self.conexao.send(response_headers_raw)
         result = '\n<html><body>' + msg.replace('\r\n', '<br>') + '</body></html>'
         self.conexao.send(result)
