@@ -53,10 +53,9 @@ if __name__ == '__main__':
             #Start em uma nova thread e procesa a request
             thread.start_new_thread(request.processarRequest, ())
     except KeyboardInterrupt as e:
-        tcp.listen(0)
-        tcp.close()
         print "Servidor finalizado com sucesso"
     except Exception as e:
-        tcp.listen(0)
-        tcp.close()
         print "Servidor encontrou um problema", e
+    finally:
+        tcp.shutdown()
+        tcp.close()
