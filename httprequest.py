@@ -5,22 +5,22 @@ from httpmethods import httpmethod
 class HeaderInvalidException(Exception):
     """ Execeção levantada quando o header não possui  metodo,path,porotocolo"""
 
-    def __init__(self, message, errors):
-        super(HeaderInvalidException, self).__init__(message)
+    def __init__(self, message):
+        self.message = message
 
 
 class HeaderMethodException(Exception):
     """ Execeção levantada quando o method não é válido """
 
-    def __init__(self, message, errors):
-        super(HeaderInvalidException, self).__init__(message)
+    def __init__(self, message):
+        self.message = message
 
 
 class HeaderInvalidProtocolException(Exception):
     """ Execeção levantada quando o protocolo não é valido"""
 
-    def __init__(self, message, errors):
-        super(HeaderInvalidException, self).__init__(message)
+    def __init__(self, message):
+        self.message = message
 
 
 class HttpHeader(object):
@@ -47,7 +47,7 @@ class HttpRequest(object):
         self.__header.path = header[1]
         self.__header.protocol = header[2]
         # Validação para o protocolo 1.0 ou 1.1
-        if not self.__header.protocol.startswith("HTTP/1"):
+        if not self.__header.protocol.upper().startswith("HTTP/1"):
             raise HeaderInvalidProtocolException("Request inválido protocolo não aceito [%s]" % self.__header.protocol)
         # Apenas aceitamos HEAD, POST e GET
         if self.__header.method not in httpmethod.allmethods():
