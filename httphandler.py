@@ -2,7 +2,7 @@
 import logging
 import thread
 
-from httpmethods import httpmethod
+from httprequest import *
 from httpstatus import *
 
 logging.basicConfig(
@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class httphandler(object):
     """Classe de processamento do http e da requisição"""
+    mime_html = "text/html; encoding=utf8"
 
     def __init__(self, conexao, cliente, PACKET_LENGTH):
         self.conexao = conexao  # socket
@@ -32,46 +33,69 @@ class httphandler(object):
             msg += tmp
             if len(tmp) < self.PACKET_LENGTH:
                 break
-        # Pega o header da requisão
-        header = msg.split('\r\n')[0]
-        # Separa o header en método, path e protocolo
-        header_attributes = header.split(' ')
-        logger.info('Cliente(ip, porta resposta ) [%s] pediu com o header [%s] com a mensagem completa:\n%s' % (self.cliente, header, msg))
-        # Válida que o header representa um header http 1.X
-        if len(header_attributes) != 3:
-            self.sendResponse("Esse cabeçalho é invalido[%s] para requisições HTTP/1.0" % header, httpstatus.status[400])
-        else:
-            method = header_attributes[0].upper()
-            path = header_attributes[1]
-            protocol = header_attributes[2]
-            # Validação para o protocolo 1.0 ou 1.1
-            if not protocol.startswith("HTTP/1"):
-                self.sendResponse("Request inválido protocolo não aceito [%s]" % protocol, httpstatus.status[400])
+        logger.info('Cliente(ip, porta resposta ) [%s] com a mensagem completa:\n%s' % (self.cliente, msg))
+        try:
+            request = HttpRequest(msg)
+            arquivo_path = None
+            if request.path == '/':
+                arquivo_path = 'index.html'
+            elif request.path.endswith('htm') or request.path.endswith('html'):
+                arquivo_path = request.path
             else:
-                # Apenas aceitamos HEAD, POST e GET
-                if method not in httpmethod.allmethods():
-                    self.sendResponse("Esse método[%s] ainda ainda não foi implementado" % method, httpstatus.status[501])
-                else:
-                    self.sendResponse(msg, httpstatus.status[200])
-        # Depois de enviar a resposta ele fecha a thread em que ele está executando
-        thread.exit()
+                self.return404()
+            if arquivo_path is None:
+                self.return404()
+            else:
+                arquivo = open(arquivo_path, 'r')
+                logger.info("Tentando abri arquivo %s" % arquivo.name)
+                response_body = arquivo.read()
+                self.sendResponse(response_body, self.mime_html, httpstatus.status[200])
+                arquivo.close()
+        except HeaderInvalidException as header_invalid:
+            response_body = header_invalid.message
+            self.sendResponse(response_body, self.mime_html, httpstatus.status[400])
+        except HeaderInvalidProtocolException as invalid_protocol:
+            response_body = invalid_protocol.message
+            self.sendResponse(response_body, self.mime_html, httpstatus.status[400])
+        except HeaderMethodException as header_method:
+            response_body = header_method.message
+            self.sendResponse(response_body, self.mime_html, httpstatus.status[501])
+        except IOError as e:
+            self.return404()
+        except Exception as e:
+            response_body = e.message
+            self.sendResponse(response_body, self.mime_html, httpstatus.status[500])
+        finally:
+            # Depois de enviar a resposta ele fecha a thread em que ele está executando
+            thread.exit()
+
+    def return404(self):
+        response_body = "Ops acho que perdemos alguma coisa :S"
+        self.sendResponse(response_body, self.mime_html, httpstatus.status[404])
 
     """
         Método que responde o cliente com uma msg em html, e um status
     """
 
-    def sendResponse(self, msg, status):
-        logger.info("Respondemos para o Cliente [%s] com o status [%s] com a mensagem:\n%s" % (self.cliente, status, msg))
-        response_headers = {
-            'Content-Type': 'text/html; encoding=utf8',
-            'Content-Length': len(msg),
-            'Connection': 'close',
-        }
-        response_headers_raw = ''.join('%s: %s\r\n' % (k, v) for k, v in response_headers.iteritems())
+    def sendResponse(self, response_body, mime_type, status):
+        logger.info("Respondemos para o Cliente [%s] com o status [%s] com a mensagem:\n%s" % (
+            self.cliente, status, response_body))
         response_proto = 'HTTP/1.0'
+        if status != httpstatus.status[200]:
+            response_body = '\r\n<html><body>' + response_body + '</body></html>'
+        response_headers = self.mountResponseHeader(mime_type, response_body)
+        response_headers_raw = ''.join('%s: %s\r\n' % (k, v) for k, v in response_headers.iteritems())
+
         self.conexao.send('%s %s\r\n' % (response_proto, status))
         self.conexao.send(response_headers_raw)
-        result = '\n<html><body>' + msg.replace('\r\n', '<br>') + '</body></html>'
-        self.conexao.send(result)
+        self.conexao.send("\r\n"+response_body)
         self.conexao.close()
         # logger.info('Respondi o cliente [%s] com o status [%s] e a mensagem:\n%s' % (self.cliente, status, msg))
+
+    def mountResponseHeader(self, mime_type, response):
+        response_headers = {
+            'Content-Type': mime_type,
+            'Content-Length': len(response),
+            'Connection': 'close',
+        }
+        return response_headers
