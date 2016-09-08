@@ -17,6 +17,7 @@ class httphandler(object):
     mime_jpg = "image/jpg"
     mime_gif = "image/gif"
     mime_css = "text/css; encoding=utf8"
+    mime_ico = "image / x - icon"
 
     def __init__(self, conexao, cliente, PACKET_LENGTH):
         self.conexao = conexao  # socket
@@ -63,6 +64,12 @@ class httphandler(object):
                 response_body = arquivo.read()
                 arquivo.close()
                 self.sendResponse(response_body, self.mime_gif, httpstatus.status[200])
+            elif arquivo_path.endswith('ico'):
+                arquivo = open(arquivo_path, 'rb')
+                response_body = arquivo.read()
+                arquivo.close()
+                self.sendResponse(response_body, self.mime_ico, httpstatus.status[200])
+
             else:
                 self.return404()
         except HeaderInvalidException as header_invalid:
