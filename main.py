@@ -57,5 +57,5 @@ if __name__ == '__main__':
     except Exception as e:
         print "Servidor encontrou um problema", e
     finally:
-        tcp.shutdown()
+        tcp.listen(0)
         tcp.close()
