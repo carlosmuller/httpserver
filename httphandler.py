@@ -66,7 +66,7 @@ class httphandler(object):
         if status != httpstatus.status[200]:
             response_body = '<html><body><h1>' + response_body + '</h1></body></html>'
         # Builder do cabeçalho a partir do conteudo da mensagem
-            response_headers = self.buildHeaders(mime_type, response_body)
+        response_headers = self.buildHeaders(mime_type, response_body)
         response_headers_raw = ''.join('%s: %s\r\n' % (k, v) for k, v in response_headers.iteritems())
         self.conexao.send('%s %s\r\n' % (response_proto, status))
         self.conexao.send(response_headers_raw)
