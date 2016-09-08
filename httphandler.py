@@ -70,9 +70,9 @@ class httphandler(object):
         response_headers_raw = ''.join('%s: %s\r\n' % (k, v) for k, v in response_headers.iteritems())
         self.conexao.send('%s %s\r\n' % (response_proto, status))
         self.conexao.send(response_headers_raw)
-        self.conexao.send('\r\n%s\r\n' % response_body)
+        self.conexao.send('\r\n%s' % response_body)
         self.conexao.close()
-        logger.info('Respondemos para o Cliente [%s] com o status [%s] com a header:\n%s' % (
+        logger.info('Respondemos para o Cliente [%s] com o status [%s] com a header:\n%s\n' % (
             self.cliente, status, response_headers))
 
     def buildHeaders(self, mime_type, response):

@@ -41,6 +41,7 @@ if __name__ == '__main__':
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
     # Aceita qualquer requeste de qualquer endereço, que venha na porta
     orig = ('0.0.0.0', PORT)
+    tcp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     tcp.bind(orig)
     # Começa a ouvir
     tcp.listen(1)
