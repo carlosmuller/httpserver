@@ -44,7 +44,7 @@ if __name__ == '__main__':
     tcp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     tcp.bind(orig)
     # Começa a ouvir
-    tcp.listen(1)
+    tcp.listen(100)
     try:
         while True:
             # Conexão aceita
