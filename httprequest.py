@@ -42,16 +42,19 @@ class HttpRequest(object):
         header = linhas_request[0].split(' ')
         # Válida que o header representa um header http 1.X
         if len(header) != 3:
-            raise HeaderInvalidException("Esse cabeçalho é invalido[%s] para requisições HTTP/1.0" % header)
+            raise HeaderInvalidException('Esse cabeçalho é invalido[%s] para requisições HTTP/1.0' % header)
         self.__header.method = header[0]
-        self.__header.path = header[1]
+        path_with_params = header[1].split('?')
+        self.__header.path = path_with_params[0]
+        if len(path_with_params) > 1:
+            self.__params = path_with_params[1]
         self.__header.protocol = header[2]
         # Validação para o protocolo 1.0 ou 1.1
-        if not self.__header.protocol.upper().startswith("HTTP/1"):
-            raise HeaderInvalidProtocolException("Request inválido protocolo não aceito [%s]" % self.__header.protocol)
+        if not self.__header.protocol.upper().startswith('HTTP/1'):
+            raise HeaderInvalidProtocolException('Request inválido protocolo não aceito [%s]' % self.__header.protocol)
         # Apenas aceitamos HEAD, POST e GET
         if self.__header.method not in httpmethod.allmethods():
-            raise HeaderMethodException("Esse método[%s] ainda ainda não foi implementado" % self.__header.method)
+            raise HeaderMethodException('Esse método[%s] ainda ainda não foi implementado' % self.__header.method)
 
     @property
     def path(self):
