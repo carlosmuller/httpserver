@@ -39,30 +39,26 @@ class httphandler(object):
         logger.info('Cliente(ip, porta resposta ) [%s] com a mensagem completa:\n%s' % (self.cliente, msg))
         try:
             request = HttpRequest(msg)
-            arquivo_path = request.path[1:]
-            if arquivo_path == '':
+            arquivo_path = "."+request.path
+            if arquivo_path == './':
                 arquivo_path = 'index.html'
             if arquivo_path.endswith('htm') or arquivo_path.endswith('html'):
-                logger.info("[HTML] tentando abrir arquivo:" + arquivo_path)
                 arquivo = open(arquivo_path, 'r')
                 response_body = arquivo.read()
                 self.sendResponse(response_body, self.mime_html, httpstatus.status[200])
                 arquivo.close()
             elif arquivo_path.endswith(('jpeg', 'jpg')):
                 # rb porque é binary
-                logger.info("[IMG] tentando abrir arquivo:" + arquivo_path)
                 arquivo = open(arquivo_path, 'rb')
                 response_body = arquivo.read()
                 arquivo.close()
                 self.sendResponse(response_body, self.mime_jpg, httpstatus.status[200])
             elif arquivo_path.endswith('css'):
-                logger.info("[CSS] tentando abrir arquivo:" + arquivo_path)
                 arquivo = open(arquivo_path, 'r')
                 response_body = arquivo.read()
                 arquivo.close()
                 self.sendResponse(response_body, self.mime_css, httpstatus.status[200])
             elif arquivo_path.endswith('gif'):
-                logger.info("[IMG] tentando abrir arquivo:" + arquivo_path)
                 arquivo = open(arquivo_path, 'rb')
                 response_body = arquivo.read()
                 arquivo.close()
@@ -96,20 +92,19 @@ class httphandler(object):
     """
 
     def sendResponse(self, response_body, mime_type, status):
-        # logger.info("Respondemos para o Cliente [%s] com o status [%s] com a mensagem:\n%s" % (
-        #   self.cliente, status, response_body))
         response_proto = 'HTTP/1.0'
         if status != httpstatus.status[200]:
             response_body = '\r\n<html><body>' + response_body + '</body></html>'
         response_headers = self.mountResponseHeader(mime_type, response_body)
+        logger.info("Respondemos para o Cliente [%s] com o status [%s] com a header:\n%s" % (
+            self.cliente, status, response_headers))
         response_headers_raw = ''.join('%s: %s\r\n' % (k, v) for k, v in response_headers.iteritems())
-
         self.conexao.send('%s %s\r\n' % (response_proto, status))
         self.conexao.send(response_headers_raw)
         self.conexao.send("\r\n" + response_body)
         self.conexao.close()
-        logger.info('Respondi o cliente [%s] com o status [%s] e a mensagem:\n%s' % (
-        self.cliente, status, (response_headers + response_body)))
+        # logger.info('Respondi o cliente [%s] com o status [%s] e a mensagem:\n%s' % (
+        # self.cliente, status, (response_headers + response_body)))
 
     def mountResponseHeader(self, mime_type, response):
         response_headers = {
