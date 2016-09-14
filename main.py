@@ -36,6 +36,8 @@ config = {
 
 
 def parse_config_file(file):
+    if file is None:
+        return None
     try:
         fl = open(file)
         js = json.loads(fl.read())
@@ -78,13 +80,11 @@ if __name__ == '__main__':
             # Criando obj para parsear o request
             request = httphandler(con, client, int(config['packet_length']))
             # Start em uma nova thread e procesa a request
-            thread.start_new_thread(request.processarRequest, (config['security']))
+            thread.start_new_thread(request.processarRequest, (config['security'],))
     except KeyboardInterrupt as e:
-        print
-        "Servidor finalizado com sucesso"
+        print "Servidor finalizado com sucesso"
     except Exception as e:
-        print
-        "Servidor encontrou um problema", e
+        print "Servidor encontrou um problema", e
     finally:
         tcp.listen(0)
         tcp.close()
