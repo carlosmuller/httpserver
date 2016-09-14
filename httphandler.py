@@ -15,23 +15,23 @@ logger = logging.getLogger(__name__)
 class httphandler(object):
     """Classe de processamento do http e da requisição"""
 
-    def __init__(self, conexao, cliente, PACKET_LENGTH):
+    def __init__(self, conexao, cliente, packet_length):
         self.conexao = conexao  # socket
         self.cliente = cliente  # Cliente ip porta
-        self.PACKET_LENGTH = PACKET_LENGTH  # tamanho para leitura de entrada
+        self.packet_length = packet_length  # tamanho para leitura de entrada
 
     """
         Método que recebe toda a mensagem to cliente e a valida,
         para cada tipo de erro manda uma saída.
     """
 
-    def processarRequest(self):
+    def processarRequest(self, security):
         msg = ""
         # Recebe a mensgem até ela acabar
         while True:
-            tmp = self.conexao.recv(self.PACKET_LENGTH)
+            tmp = self.conexao.recv(self.packet_length)
             msg += tmp
-            if len(tmp) < self.PACKET_LENGTH:
+            if len(tmp) < self.packet_length:
                 break
         logger.info('Cliente(ip, porta resposta ) [%s] com a mensagem completa:\n%s' % (self.cliente, msg))
         try:

@@ -1,10 +1,10 @@
 {
-  'port':8181,
-  'packet_length':32,
-  'allow_serve_directories':False,
-  'security' :
+  "port": "8282",
+  "packet_length": "32",
+  "allow_serve_directories": "false",
+  "security" :
     {
-      'basic_auth':'root:toor',
-      'private_directories':['restrito']
+      "basic_auth": "root:toor",
+      "private_directories": [ "restrito" ]
     }
 }

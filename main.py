@@ -2,6 +2,7 @@
 import thread
 import socket
 import argparse
+import json
 import logging
 from httphandler import *
 
@@ -20,36 +21,51 @@ HttpServer
 """
 
 config = {
-    'port':8181,
-    'packet_length':32,
-    'allow_serve_directories':False,
+    'port': 8181,
+    'packet_length': 32,
+    'allow_serve_directories': False,
     'security':
-    {
-        'basic_auth':'root:toor',
-        'private_directories':
-        [
-            'restrito'
-        ]
-    }
+        {
+            'basic_auth': 'root:toor',
+            'private_directories':
+                [
+                    'restrito'
+                ]
+        }
 }
 
+
 def parse_config_file(file):
-    pass
+    try:
+        fl = open(file)
+        js = json.loads(fl.read())
+        fl.close()
+        return js
+
+    except IOError as e:
+        print "Can't open file", file
+        print e
+        return None
+
 
 def get_args():
     parser = argparse.ArgumentParser(
-        description="A Simple HTTP server, if none where specified  will run on 8181 and packet size will be 32, with no password protection an will be")
-    parser.add_argument('-c','--config-file', type=str, help='Config file, must be an existing json file. An example file is provided in config.json.sample')
+        description="A Simple HTTP server, if none where specified  will run on 8181 and packet size will be 32, the directory 'restrito' has access with 'root:toor'")
+    parser.add_argument('-c', '--config-file', required=False, type=str,
+                        help='Config file, must be an existing json file. An example file is provided in config.json.sample')
     arg = parser.parse_args()
-    parse_config_file(arg.config_file)
+    return parse_config_file(arg.config_file)
+
 
 if __name__ == '__main__':
-
+    config_args = get_args()
+    if config_args is not None:
+        config = config_args
     logger.info('Starting server at %s' % config['port'])
 
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
     # Aceita qualquer requeste de qualquer endereço, que venha na porta
-    orig = ('0.0.0.0', config['port'])
+    orig = ('0.0.0.0', int(config['port']))
     tcp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     tcp.bind(orig)
     # Começa a ouvir
@@ -60,13 +76,15 @@ if __name__ == '__main__':
             con, client = tcp.accept()
             logger.debug("Concetado com cliente %s" % client[0])
             # Criando obj para parsear o request
-            request = httphandler(con, client, config['packet_length'])
+            request = httphandler(con, client, int(config['packet_length']))
             # Start em uma nova thread e procesa a request
-            thread.start_new_thread(request.processarRequest, ())
+            thread.start_new_thread(request.processarRequest, (config['security']))
     except KeyboardInterrupt as e:
-        print "Servidor finalizado com sucesso"
+        print
+        "Servidor finalizado com sucesso"
     except Exception as e:
-        print "Servidor encontrou um problema", e
+        print
+        "Servidor encontrou um problema", e
     finally:
         tcp.listen(0)
         tcp.close()
