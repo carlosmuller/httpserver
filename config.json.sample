@@ -4,7 +4,8 @@
   "allow_serve_directories": "false",
   "security" :
     {
-      "basic_auth": "root:toor",
+      "realm": "realm",
+      "basic_auth": "pusheen:neehsup",
       "private_directories": [ "restrito" ]
     }
 }

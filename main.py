@@ -5,6 +5,7 @@ import argparse
 import json
 import logging
 from httphandler import *
+from base64 import b64encode as encode
 
 logging.basicConfig(
     format='%(asctime)s - %(message)s',
@@ -26,7 +27,8 @@ config = {
     'allow_serve_directories': False,
     'security':
         {
-            'basic_auth': 'root:toor',
+            'realm': 'realm',
+            'basic_auth': 'root:tr',
             'private_directories':
                 [
                     'restrito'
@@ -63,6 +65,7 @@ if __name__ == '__main__':
     config_args = get_args()
     if config_args is not None:
         config = config_args
+    config['security']['basic_auth']= encode(config['security']['basic_auth'])
     logger.info('Starting server at %s' % config['port'])
 
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
@@ -78,9 +81,9 @@ if __name__ == '__main__':
             con, client = tcp.accept()
             logger.debug("Concetado com cliente %s" % client[0])
             # Criando obj para parsear o request
-            request = httphandler(con, client, int(config['packet_length']))
+            request = httphandler(con, client, int(config['packet_length']), config['security'])
             # Start em uma nova thread e procesa a request
-            thread.start_new_thread(request.processarRequest, (config['security'],))
+            thread.start_new_thread(request.processarRequest, ())
     except KeyboardInterrupt as e:
         print "Servidor finalizado com sucesso"
     except Exception as e:

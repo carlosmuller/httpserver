@@ -55,7 +55,14 @@ class HttpRequest(object):
         # Apenas aceitamos HEAD, POST e GET
         if self.__header.method not in httpmethod.allmethods():
             raise HeaderMethodException('Esse método[%s] ainda ainda não foi implementado' % self.__header.method)
+        self.__authorization = filter(lambda x: x.startswith('Authorization:'), linhas_request)
 
     @property
     def path(self):
         return self.__header.path
+
+    @property
+    def authorization(self):
+        if self.__authorization:
+            return self.__authorization[0].split('Authorization: Basic ')[1]
+        return None
