@@ -40,7 +40,7 @@ class httphandler(object):
             request = HttpRequest(msg)
             self.request = request
             #See
-            if any(request.path == '/'+directory for directory in self.security['private_directories']):
+            if any(request.path.startswith('/'+directory) for directory in self.security['private_directories']):
                 if not request.authorization:
                     return self.send_401()
                 else:

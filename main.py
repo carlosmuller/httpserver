@@ -28,7 +28,7 @@ config = {
     'security':
         {
             'realm': 'realm',
-            'basic_auth': 'root:tr',
+            'basic_auth': 'root:toor',
             'private_directories':
                 [
                     'restrito'
