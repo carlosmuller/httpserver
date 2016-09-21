@@ -51,7 +51,8 @@ class File(object):
     def __init__(self, path, serve_directory):
         # Append para servir do diretório para baixo
         path = regex.sub(r"/+", "/", path)
-        self.__is_directory = path.endswith('/')
+        postion_of_dot = path[path.rfind('/') + 1:].find('.')
+        self.__is_directory = path.endswith('/') or postion_of_dot <= 0
         self.__serve_directory = serve_directory
         # Caso a opção não servimos direórios servimos um index.html
         if self.__is_directory:
@@ -92,9 +93,10 @@ class File(object):
         list = listdir(self.__path)
         self.__file_type = file_type['html']
         hidden_item = '<li hidden></li>'
+        path = self.__path[self.__path.find('/')+1:]
         list_item = '<li><a href="%s">%s</li>' + hidden_item
         content = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Arquivos em: [%s]</title></head><body><h1>Lista de arquivos:</h1><ul>%s</ul></body></html>' % (
         self.__path, hidden_item)
         for item in list:
-            content = content.replace(hidden_item, list_item % (item, item))
+            content = content.replace(hidden_item, list_item % (path+'/'+item, item))
         return content
