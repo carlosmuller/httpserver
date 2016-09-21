@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 import re as regex
+from os import listdir
+from mimetypes import MimeTypes
 
 """
     Mapa constante de definição para tipos de arquivos
@@ -46,11 +48,16 @@ file_type = {
 
 
 class File(object):
-    def __init__(self, path):
+    def __init__(self, path, serve_directory):
         # Append para servir do diretório para baixo
         path = regex.sub(r"/+", "/", path)
-        if path.endswith('/'):
-            path += 'index.html'
+        self.__is_directory = path.endswith('/')
+        self.__serve_directory = serve_directory
+        # Caso a opção não servimos direórios servimos um index.html
+        if self.__is_directory:
+            if not serve_directory:
+                path += 'index.html'
+
         self.__path = '.' + path
         # Caso aceite o tipo de arquivo mime type correto e o tipo de leitura, se não cai no padrão octet-stream
         try:
@@ -60,15 +67,34 @@ class File(object):
 
     @property
     def content(self):
-        file = open(self.__path, self.__file_type['read_type'])
-        content = file.read()
-        file.close()
-        return content
+        if self.__is_directory and self.__serve_directory:
+            return self.mount_directory_list()
+        else:
+            file = open(self.__path, self.__file_type['read_type'])
+            content = file.read()
+            file.close()
+            return content
 
     @property
     def mime_type(self):
+        mime = MimeTypes()
+        guessed = mime.guess_type(self.__path)
+        if guessed[0] is not None:
+            return guessed[0]
         return self.__file_type['mime_type']
 
     def __extract_extension(self):
         split = self.__path.split('.')
         return split[len(split) - 1]
+
+    #Montamos um html com uma lista de arquivos e diretórios do path
+    def mount_directory_list(self):
+        list = listdir(self.__path)
+        self.__file_type = file_type['html']
+        hidden_item = '<li hidden></li>'
+        list_item = '<li><a href="%s">%s</li>' + hidden_item
+        content = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Arquivos em: [%s]</title></head><body><h1>Lista de arquivos:</h1><ul>%s</ul></body></html>' % (
+        self.__path, hidden_item)
+        for item in list:
+            content = content.replace(hidden_item, list_item % (item, item))
+        return content

@@ -24,7 +24,7 @@ HttpServer
 config = {
     'port': 8181,
     'packet_length': 32,
-    'allow_serve_directories': False,
+    'allow_serve_directories': True,
     'security':
         {
             'realm': 'realm',
@@ -81,7 +81,7 @@ if __name__ == '__main__':
             con, client = tcp.accept()
             logger.debug("Concetado com cliente %s" % client[0])
             # Criando obj para parsear o request
-            request = httphandler(con, client, int(config['packet_length']), config['security'])
+            request = httphandler(con, client, int(config['packet_length']), config['security'], config['allow_serve_directories'])
             # Start em uma nova thread e procesa a request
             thread.start_new_thread(request.processarRequest, ())
     except KeyboardInterrupt as e:

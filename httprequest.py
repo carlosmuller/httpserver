@@ -39,7 +39,8 @@ class HttpRequest(object):
         # Pega o header da requisão
         linhas_request = msg.split('\r\n')
         # Separa o header en método, path e protocolo
-        header = linhas_request[0].split(' ')
+        self.__first_line = linhas_request[0]
+        header = self.__first_line.split(' ')
         # Válida que o header representa um header http 1.X
         if len(header) != 3:
             raise HeaderInvalidException('Esse cabeçalho é invalido[%s] para requisições HTTP/1.0' % header)
@@ -60,6 +61,10 @@ class HttpRequest(object):
     @property
     def path(self):
         return self.__header.path
+
+    @property
+    def header(self):
+        return self.__first_line
 
     @property
     def authorization(self):
