@@ -67,6 +67,10 @@ class HttpRequest(object):
         return self.__first_line
 
     @property
+    def method(self):
+        return self.__header.method
+
+    @property
     def authorization(self):
         if self.__authorization:
             return self.__authorization[0].split('Authorization: Basic ')[1]

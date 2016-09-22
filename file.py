@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import re as regex
 from os import listdir
+from os import path as ospath
 from mimetypes import MimeTypes
 
 """
@@ -51,15 +52,15 @@ class File(object):
     def __init__(self, path, serve_directory):
         # Append para servir do diretório para baixo
         path = regex.sub(r"/+", "/", path)
-        postion_of_dot = path[path.rfind('/') + 1:].find('.')
-        self.__is_directory = path.endswith('/') or postion_of_dot <= 0
+        path = '.' +path
+        self.__is_directory = ospath.isdir(path)
         self.__serve_directory = serve_directory
         # Caso a opção não servimos direórios servimos um index.html
         if self.__is_directory:
             if not serve_directory:
                 path += 'index.html'
 
-        self.__path = '.' + path
+        self.__path = path
         # Caso aceite o tipo de arquivo mime type correto e o tipo de leitura, se não cai no padrão octet-stream
         try:
             self.__file_type = file_type[self.__extract_extension()]
