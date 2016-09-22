@@ -8,7 +8,7 @@ from file import *
 
 logging.basicConfig(
     format='%(asctime)s - %(message)s',
-    level=logging.INFO)
+    level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -35,7 +35,7 @@ class httphandler(object):
             msg += tmp
             if len(tmp) < self.packet_length:
                 break
-        # logger.info('Cliente(ip, porta resposta ) [%s] com a mensagem completa:\n%s' % (self.cliente, msg))
+        logger.debug('Cliente(ip, porta resposta ) [%s] com a mensagem completa:\n%s' % (self.cliente, msg))
         try:
             # Monta o que é necessário para responder, caso tenha algo invalido ele lança exceção
             request = HttpRequest(msg)

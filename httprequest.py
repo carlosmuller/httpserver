@@ -56,6 +56,11 @@ class HttpRequest(object):
         # Apenas aceitamos HEAD, POST e GET
         if self.__header.method not in httpmethod.allmethods():
             raise HeaderMethodException('Esse método[%s] ainda ainda não foi implementado' % self.__header.method)
+        if self.__header.method == httpmethod.post:
+            content_length = filter(lambda x: x.startswith('Content-Length'), linhas_request)
+            if not content_length or content_length[0].split(':')<0:
+                raise HeaderInvalidException('Para requestes com metódo [POST] precisamos de um tamanho')
+
         self.__authorization = filter(lambda x: x.startswith('Authorization:'), linhas_request)
 
     @property
