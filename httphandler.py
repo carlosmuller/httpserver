@@ -8,7 +8,7 @@ from file import *
 
 logging.basicConfig(
     format='%(asctime)s - %(message)s',
-    level=logging.DEBUG)
+    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -47,7 +47,7 @@ class httphandler(object):
             else:
                 # Tenta ler o arquivo, caso não ache lança uma IOeror e cai no return 404
                 file = File(request.path, self.serve_directory)
-                # Chama o  métoodo de resposta
+                # Chama o  método de resposta
                 self.sendResponse(file.content, file.mime_type, httpstatus.status[200])
         except (HeaderInvalidException, HeaderInvalidProtocolException) as ie:
             response_body = ie.message
@@ -86,12 +86,10 @@ class httphandler(object):
         response_headers_raw = ''.join('%s: %s\r\n' % (k, v) for k, v in response_headers.iteritems())
         self.conexao.send('%s %s\r\n' % (response_proto, status))
         self.conexao.send(response_headers_raw)
-        if self.request.method == httpmethod.head:
-            self.conexao.send('\r\n')
-        else:
-            self.conexao.send('\r\n%s' % response_body)
+        if self.request.method != httpmethod.head or self.request.method != httpmethod.post:
+            self.conexao.send('\r\n%s\r\n' % response_body)
         self.conexao.close()
-        logger.info('O cliente [%s] pediu[%s] e respondemos com o status [%s] com a header:\t%s\n' % (
+        logger.info('O cliente [%s] pediu[%s] e respondemos com o status [%s] com a header:\t%s' % (
             self.cliente, self.request.header, status, response_headers))
 
     def buildHeaders(self, mime_type, response, authentication=None):

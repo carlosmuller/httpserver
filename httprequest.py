@@ -59,7 +59,7 @@ class HttpRequest(object):
         if self.__header.method == httpmethod.post:
             content_length = filter(lambda x: x.startswith('Content-Length'), linhas_request)
             if not content_length or content_length[0].split(':')<0:
-                raise HeaderInvalidException('Para requestes com metódo [POST] precisamos de um tamanho')
+                raise HeaderInvalidException('Para requisições com metódo [POST] precisamos de um tamanho')
 
         self.__authorization = filter(lambda x: x.startswith('Authorization:'), linhas_request)
 
