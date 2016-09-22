@@ -86,7 +86,10 @@ class httphandler(object):
         response_headers_raw = ''.join('%s: %s\r\n' % (k, v) for k, v in response_headers.iteritems())
         self.conexao.send('%s %s\r\n' % (response_proto, status))
         self.conexao.send(response_headers_raw)
-        self.conexao.send('\r\n%s' % response_body)
+        if self.request.method == httpmethod.head:
+            self.conexao.send('\r\n')
+        else:
+            self.conexao.send('\r\n%s' % response_body)
         self.conexao.close()
         logger.info('O cliente [%s] pediu[%s] e respondemos com o status [%s] com a header:\t%s\n' % (
             self.cliente, self.request.header, status, response_headers))
