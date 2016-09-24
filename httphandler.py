@@ -7,10 +7,14 @@ from httpstatus import *
 from file import *
 
 logging.basicConfig(
-    format='%(asctime)s - %(message)s',
+    format='%(asctime)s %(levelname)s %(message)s',
     level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+hdlr = logging.FileHandler('www/restrito/log.log')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logger.setLevel(logging.INFO)
 
 class httphandler(object):
     """Classe de processamento do http e da requisição"""

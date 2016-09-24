@@ -8,9 +8,15 @@ from httphandler import *
 from base64 import b64encode as encode
 
 logging.basicConfig(
-    format='%(asctime)s - %(message)s',
+    format='%(asctime)s %(levelname)s %(message)s',
     level=logging.INFO)
 logger = logging.getLogger(__name__)
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+hdlr = logging.FileHandler('www/restrito/log.log')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logger.setLevel(logging.INFO)
+
 
 help = """
 HttpServer

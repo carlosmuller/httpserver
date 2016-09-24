@@ -3,11 +3,6 @@ import re as regex
 from os import listdir
 from os import path as ospath
 from mimetypes import MimeTypes
-import logging
-logging.basicConfig(
-    format='%(asctime)s - %(message)s',
-    level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 """
@@ -27,6 +22,10 @@ file_type = {
         'mime_type': 'image/gif'
     },
     'html': {
+        'read_type': 'r',
+        'mime_type': 'text/html; encoding=utf8'
+    },
+    'log': {
         'read_type': 'r',
         'mime_type': 'text/html; encoding=utf8'
     },
@@ -66,8 +65,7 @@ class File(object):
             if not serve_directory:
                 path += 'index.html'
             elif not path.endswith('/'):
-                path+='/'
-
+                path += '/'
 
         self.__path = path
         # Caso aceite o tipo de arquivo mime type correto e o tipo de leitura, se não cai no padrão octet-stream
@@ -84,6 +82,12 @@ class File(object):
             file = open(self.__path, self.__file_type['read_type'])
             content = file.read()
             file.close()
+            if self.__file_type == file_type['log']:
+                parcial_content = content
+                content = '<ul>'
+                for linha in parcial_content.split('\n'):
+                    content = content + '<li>' + linha + '</li>'
+                content += '</ul>'
             return content
 
     @property
@@ -109,9 +113,9 @@ class File(object):
         content = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Arquivos em: [%s]</title></head><body><h1>Lista de arquivos:</h1><ul>%s</ul></body></html>' % (
             self.__path[5:], hidden_item)
         for item in list:
-            add =''
-            if ospath.isdir(path+'/'+item):
-                add='/'
+            add = ''
+            if ospath.isdir(path + '/' + item):
+                add = '/'
             logger.debug(path)
-            content = content.replace(hidden_item, list_item % (path[5:]+ item, item+add))
+            content = content.replace(hidden_item, list_item % (path[5:] + item, item + add))
         return content
