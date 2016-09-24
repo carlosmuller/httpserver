@@ -12,7 +12,7 @@ logging.basicConfig(
     level=logging.INFO)
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-hdlr = logging.FileHandler('www/restrito/log.log')
+hdlr = logging.FileHandler('www/restrito/server.log')
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 logger.setLevel(logging.INFO)
