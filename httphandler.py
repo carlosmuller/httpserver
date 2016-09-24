@@ -104,6 +104,6 @@ class httphandler(object):
             'Content-Type': mime_type,
             'Content-Length': len(response),
             'Connection': 'close',
-            'WWW-Authenticate': 'Basic realm="%s"' % self.security['realm']
+            'WWW-Authenticate': 'Basic realm=\"%s\"' %self.security['realm']
         }
         return response_headers

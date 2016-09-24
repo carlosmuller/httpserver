@@ -24,7 +24,7 @@ HttpServer
 config = {
     'port': 8181,
     'read_length': 32,
-    'allow_serve_directories': False,
+    'allow_serve_directories': True,
     'security':
         {
             'realm': 'realm',

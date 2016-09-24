@@ -3,6 +3,12 @@ import re as regex
 from os import listdir
 from os import path as ospath
 from mimetypes import MimeTypes
+import logging
+logging.basicConfig(
+    format='%(asctime)s - %(message)s',
+    level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 """
     Mapa constante de definição para tipos de arquivos
@@ -51,14 +57,17 @@ file_type = {
 class File(object):
     def __init__(self, path, serve_directory):
         # Append para servir do diretório para baixo
+        path = './www/' + path
         path = regex.sub(r"/+", "/", path)
-        path = '.' +path
         self.__is_directory = ospath.isdir(path)
         self.__serve_directory = serve_directory
         # Caso a opção não servimos direórios servimos um index.html
         if self.__is_directory:
             if not serve_directory:
                 path += 'index.html'
+            elif not path.endswith('/'):
+                path+='/'
+
 
         self.__path = path
         # Caso aceite o tipo de arquivo mime type correto e o tipo de leitura, se não cai no padrão octet-stream
@@ -90,15 +99,19 @@ class File(object):
         split = self.__path.split('.')
         return split[len(split) - 1]
 
-    #Montamos um html com uma lista de arquivos e diretórios do path
+    # Montamos um html com uma lista de arquivos e diretórios do path
     def mount_directory_list(self):
         list = listdir(self.__path)
         self.__file_type = file_type['html']
         hidden_item = '<li hidden></li>'
-        path = self.__path[self.__path.find('/')+1:]
+        path = self.__path
         list_item = '<li><a href="%s">%s</li>' + hidden_item
         content = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Arquivos em: [%s]</title></head><body><h1>Lista de arquivos:</h1><ul>%s</ul></body></html>' % (
-        self.__path, hidden_item)
+            self.__path[5:], hidden_item)
         for item in list:
-            content = content.replace(hidden_item, list_item % (path+'/'+item, item))
+            add =''
+            if ospath.isdir(path+'/'+item):
+                add='/'
+            logger.debug(path)
+            content = content.replace(hidden_item, list_item % (path[5:]+ item, item+add))
         return content
