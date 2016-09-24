@@ -1,11 +1,14 @@
 {
-  "port": "8282",
-  "packet_length": "32",
-  "allow_serve_directories": "false",
+  "port": 8181,
+  "read_length": 32,
+  "allow_serve_directories": true,
   "security" :
     {
       "realm": "realm",
       "basic_auth": "pusheen:neehsup",
-      "private_directories": [ "restrito" ]
+      "private_directories":
+        [
+          "restrito"
+        ]
     }
 }

@@ -79,10 +79,11 @@ class File(object):
 
     @property
     def mime_type(self):
-        mime = MimeTypes()
-        guessed = mime.guess_type(self.__path)
-        if guessed[0] is not None:
-            return guessed[0]
+        if self.__file_type == file_type['default']:
+            mime = MimeTypes()
+            guessed = mime.guess_type(self.__path)
+            if guessed[0] is not None:
+                return guessed[0]
         return self.__file_type['mime_type']
 
     def __extract_extension(self):

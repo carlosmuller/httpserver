@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 class httphandler(object):
     """Classe de processamento do http e da requisição"""
 
-    def __init__(self, conexao, cliente, packet_length, security, serve_directory):
+    def __init__(self, conexao, cliente, read_length, security, serve_directory):
         self.conexao = conexao  # socket
         self.cliente = cliente  # Cliente ip porta
-        self.packet_length = packet_length  # tamanho para leitura de entrada
+        self.read_length = read_length  # tamanho para leitura de entrada
         self.security = security
         self.serve_directory = serve_directory
 
@@ -31,9 +31,9 @@ class httphandler(object):
         msg = ""
         # Recebe a mensgem até ela acabar
         while True:
-            tmp = self.conexao.recv(self.packet_length)
+            tmp = self.conexao.recv(self.read_length)
             msg += tmp
-            if len(tmp) < self.packet_length:
+            if len(tmp) < self.read_length:
                 break
         logger.debug('Cliente(ip, porta resposta ) [%s] com a mensagem completa:\n%s' % (self.cliente, msg))
         try:

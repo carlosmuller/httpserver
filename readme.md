@@ -3,9 +3,7 @@
 
 HttpServer
     Usage:
-        main.py , will run on 8181 and packet size will be 32
-        main.py (-p | --port) <PORT> , must be greater than 1024
-        main.py (-l | --length) <LENGTH>, packet size must be greater than 0
+        main.py Defaults to run on localhost:8181 with a read block size of 32 bytes
+        main.py (-c | --config-file) <FILE>, must be an existing json file
     Option:
-        -p, --port
-        -l , --length
+        -c , --config-file
