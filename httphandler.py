@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.INFO)
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-hdlr = logging.FileHandler('www/restrito/log.log')
+hdlr = logging.FileHandler('www/restrito/server.log')
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 logger.setLevel(logging.INFO)
@@ -67,10 +67,6 @@ class httphandler(object):
         finally:
             # Depois de enviar a resposta ele fecha a thread em que ele está executando
             thread.exit()
-
-    def send_401(self):
-        self.sendResponse(httpstatus.status[401], file_type['html']['mime_type'], httpstatus.status[401])
-        return
 
     """
         Método que responde o cliente com uma msg em html, e um status

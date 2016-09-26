@@ -1,7 +1,7 @@
 {
   "port": 8181,
   "read_length": 32,
-  "allow_serve_directories": true,
+  "allow_serve_directories": false,
   "security" :
     {
       "realm": "realm",

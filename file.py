@@ -4,7 +4,6 @@ from os import listdir
 from os import path as ospath
 from mimetypes import MimeTypes
 
-
 """
     Mapa constante de definição para tipos de arquivos
 """
@@ -27,7 +26,8 @@ file_type = {
     },
     'log': {
         'read_type': 'r',
-        'mime_type': 'text/html; encoding=utf8'
+        'mime_type': 'text/html; encoding=utf8',
+        'isLog': True
     },
     'htm': {
         'read_type': 'r',
@@ -116,6 +116,5 @@ class File(object):
             add = ''
             if ospath.isdir(path + '/' + item):
                 add = '/'
-            logger.debug(path)
             content = content.replace(hidden_item, list_item % (path[5:] + item, item + add))
         return content
